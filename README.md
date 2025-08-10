@@ -2,7 +2,8 @@
 
 이 프로젝트는 C#과 WPF(Windows Presentation Foundation)를 사용하여 제작된 간단한 부품 분류 시스템 데모 애플리케이션입니다. MVVM (Model-View-ViewModel) 디자인 패턴의 실제적인 적용 사례를 보여주는 것을 목표로 합니다.
 
-![App Screenshot](https://i.imgur.com/5w3T2Ue.png)
+<img width="776" height="722" alt="image" src="https://github.com/user-attachments/assets/3c161294-3edf-452f-a103-f20f5fb7d84e" />
+
 
 ## 주요 기능
 
