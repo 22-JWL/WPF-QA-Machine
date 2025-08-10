@@ -1,0 +1,178 @@
+<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="부품 분류 시스템 (v2)" Height="550" Width="800"
+        WindowStartupLocation="CenterScreen">
+    <Window.DataContext>
+        <local:MainViewModel/>
+    </Window.DataContext>
+
+    <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="LabelStyle">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="ValueStyle">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBlock" x:Key="StatusStyle">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="10"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding CurrentPart.Status}" Value="정상">
+                    <Setter Property="Foreground" Value="Green"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding CurrentPart.Status}" Value="불량">
+                    <Setter Property="Foreground" Value="Red"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="350"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="0.8*" MinWidth="300"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Panel: Inspection System -->
+        <DockPanel Grid.Column="0">
+            <StackPanel DockPanel.Dock="Top">
+                <GroupBox Header="현재 부품 정보" Padding="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="부품 ID:" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentPart.PartId}" Style="{StaticResource ValueStyle}"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="길이 (mm):" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CurrentPart.Length, StringFormat={}{0:F2}}" Style="{StaticResource ValueStyle}"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="무게 (g):" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CurrentPart.Weight, StringFormat={}{0:F2}}" Style="{StaticResource ValueStyle}"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="분류 결과:" Style="{StaticResource LabelStyle}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CurrentPart.Status}" Style="{StaticResource StatusStyle}"/>
+                    </Grid>
+                </GroupBox>
+
+                <Button Content="다음 부품 검사" Command="{Binding InspectNextPartCommand}" Margin="0,10" Padding="10" FontSize="16"/>
+            </StackPanel>
+
+            <GroupBox Header="분류 기록" Margin="0,5,0,0">
+                <ListView ItemsSource="{Binding ClassifiedParts}">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="ID" DisplayMemberBinding="{Binding PartId}" Width="140"/>
+                            <GridViewColumn Header="길이" DisplayMemberBinding="{Binding Length, StringFormat={}{0:F2}}" Width="70"/>
+                            <GridViewColumn Header="무게" DisplayMemberBinding="{Binding Weight, StringFormat={}{0:F2}}" Width="70"/>
+                            <GridViewColumn Header="상태" Width="60">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Status}" FontWeight="Bold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="정상">
+                                                            <Setter Property="Foreground" Value="Green"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="불량">
+                                                            <Setter Property="Foreground" Value="Red"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </GroupBox>
+        </DockPanel>
+
+        <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
+
+        <!-- Right Panel: Command Interface -->
+        <DockPanel Grid.Column="2">
+            <GroupBox Header="현재 정상 기준" DockPanel.Dock="Top" Padding="5">
+                <StackPanel>
+                    <TextBlock Margin="2">
+                        <Run Text="길이: " FontWeight="Bold"/>
+                        <Run Text="["/>
+                        <Run Text="{Binding MinLength, Mode=OneWay}"/>
+                        <Run Text=" ~ "/>
+                        <Run Text="{Binding MaxLength, Mode=OneWay}"/>
+                        <Run Text="] mm"/>
+                    </TextBlock>
+                    <TextBlock Margin="2">
+                        <Run Text="무게: " FontWeight="Bold"/>
+                        <Run Text="["/>
+                        <Run Text="{Binding MinWeight, Mode=OneWay}"/>
+                        <Run Text=" ~ "/>
+                        <Run Text="{Binding MaxWeight, Mode=OneWay}"/>
+                        <Run Text="] g"/>
+                    </TextBlock>
+                </StackPanel>
+            </GroupBox>
+            
+            <GroupBox Header="명령어 인터페이스" Margin="0,5,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBox Grid.Row="0" 
+                             Text="{Binding CommandLog, Mode=OneWay}"
+                             IsReadOnly="True"
+                             VerticalScrollBarVisibility="Auto"
+                             TextWrapping="Wrap"
+                             FontFamily="Consolas" 
+                             Margin="5"/>
+
+                    <Grid Grid.Row="1" Margin="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" 
+                                 Text="{Binding CommandInput, UpdateSourceTrigger=PropertyChanged}"
+                                 FontSize="14"
+                                 VerticalContentAlignment="Center">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding ExecuteUserCommand}"/>
+                            </TextBox.InputBindings>
+                        </TextBox>
+                        <Button Grid.Column="1" 
+                                Content="전송"
+                                Command="{Binding ExecuteUserCommand}"
+                                Margin="5,0,0,0" 
+                                Padding="10,5"/>
+                    </Grid>
+                </Grid>
+            </GroupBox>
+        </DockPanel>
+    </Grid>
+</Window>
