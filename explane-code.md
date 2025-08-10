@@ -26,3 +26,19 @@
    5. View Code-behind (`MainWindow.xaml.cs`):
        * 이번 예제에서는 XAML에서 DataContext를 설정했기 때문에, 코드 비하인드 파일은 거의 비어있습니다. 이것은 MVVM 패턴의 장점 중 하나로, UI의 모양(View)과 로직(ViewModel)이
          깔끔하게 분리됩니다.
+
+변경 사항 요약
+
+   1. `MainViewModel.cs`:
+       * 부품의 정상/불량 판별 기준(최소/최대 길이, 무게)이 이제 하드코딩된 값이 아닌, 언제든지 변경할 수 있는 속성(MinLength, MaxLength 등)이 되었습니다.
+       * 사용자의 명령어를 처리하기 위한 ExecuteUserCommand가 추가되었습니다.
+       * ProcessUserCommand 메서드는 사용자가 입력한 텍스트를 분석하여 상태 확인, 기준 변경, 초기화, 도움말 보기 등의 동작을 수행합니다.
+       * 모든 명령어 처리 결과와 시스템 메시지는 CommandLog 속성에 기록되어 UI에 표시됩니다.
+
+   2. `MainWindow.xaml`:
+       * 메인 화면이 Grid를 통해 좌우 두 영역으로 나뉘었고, 중간에 GridSplitter를 두어 사용자가 크기를 조절할 수 있게 했습니다.
+       * 왼쪽: 기존의 부품 검사 및 분류 기록 UI가 위치합니다.
+       * 오른쪽: 새로 추가된 명령어 인터페이스가 위치합니다.
+           * 상단에 현재 적용되고 있는 정상 기준 범위를 표시하여 사용자가 언제든 확인할 수 있습니다.
+           * 중앙에는 읽기 전용 TextBox를 두어 CommandLog의 내용을 보여줍니다.
+           * 하단에는 사용자가 명령어를 입력할 TextBox와 "전송" Button이 있습니다. 엔터 키를 눌러도 명령이 실행되도록 KeyBinding을 추가했습니다
